@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -22,7 +23,7 @@ const Login = () => {
 
       // Show success message and redirect to homepage
       setMessage("✅ Login successful!");
-      navigate("/"); // Redirect to homepage
+      navigate("/search"); // Redirect to homepage
     } catch (error) {
       console.log("Login error: ", error);
       setMessage("❌ " + (error?.response?.data?.message || "Something went wrong."));

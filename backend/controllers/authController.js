@@ -1,26 +1,26 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { getAccessToken } = require("./amadeusController");
 
-// user registration 
+// user registration
 
 exports.register = async (req, res) => {
   const { name, email, password } = req.body;
 
-  if(!name || !email || !password){
-      return res.status(400).json({
-        message: "All fields are required"
-      })
+  if (!name || !email || !password) {
+    return res.status(400).json({
+      message: "All fields are required",
+    });
   }
 
   try {
+    const existingUser = await User.findOne({ email });
 
-    const existingUser = await User.findOne({email})
-
-    if(existingUser){
+    if (existingUser) {
       return res.status(400).json({
-        message: "Email already in use!"
-      })
+        message: "Email already in use!",
+      });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -31,7 +31,7 @@ exports.register = async (req, res) => {
       password: hashedPassword,
     });
 
-    await user.save()
+    await user.save();
 
     res.status(201).json({
       message: "User registered successfully",
@@ -45,7 +45,7 @@ exports.register = async (req, res) => {
   }
 };
 
-// User login and get access_token and refresh_token from amadeus api 
+// User login and get access_token and refresh_token from amadeus api
 
 exports.login = async (req, res) => {
   const { email, password } = req.body;
@@ -74,9 +74,25 @@ exports.login = async (req, res) => {
       process.env.JWT_SECRET,
       {
         expiresIn: "1h",
-      });
+      }
+    );
 
-    res.json({token})
+    // Get Amadeus API access token after login
+    const amadeusToken = await getAccessToken();
+
+    // Assuming the user model has fields `amadeusAccessToken` and `amadeusRefreshToken`
+    user.amadeusAccessToken = amadeusToken;  // You may also want to save the refresh token if applicable
+    user.amadeusTokenExpiry = Date.now() + 3600 * 1000;  // Example expiry time (1 hour)
+
+    // Save the updated user with the new tokens in the database
+    await user.save();
+
+    res.json({
+      token, // JWT for your system
+      amadeusAccessToken: amadeusToken, // Amadeus access token
+      amadeusTokenExpiry: user.amadeusTokenExpiry, // Expiry time of the access token
+    });
+
   } catch (error) {
     console.log("Login error: ", error);
 
@@ -85,3 +101,4 @@ exports.login = async (req, res) => {
     });
   }
 };
+

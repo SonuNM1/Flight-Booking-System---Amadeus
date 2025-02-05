@@ -5,10 +5,17 @@ const UserSchema = new mongoose.Schema({
   email: {
     type: String,
     unique: true,
+    required: true 
   },
-  password: String,
+  password: {
+    type: String,
+    required: true
+  },
   amadeusAccessToken: String,
   amadeusRefreshToken: String,
+  amadeusTokenExpiry: {
+    type: Date
+  }
 });
 
 module.exports = mongoose.model("User", UserSchema);

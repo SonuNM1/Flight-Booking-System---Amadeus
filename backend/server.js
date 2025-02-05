@@ -2,6 +2,8 @@ const express = require("express")
 const connectDB = require("./config/db")
 const authRoutes = require("./routes/authRoutes")
 const amadeusRoutes = require("./routes/amadeusRoutes")
+const flightRoutes = require("./routes/flightRoutes")
+const bodyParser = require("body-parser")
 const cors = require("cors")
 
 require('dotenv').config()
@@ -24,6 +26,7 @@ app.options('*', cors()); // Enable CORS preflight for all routes
 // middleware 
 
 app.use(express.json())
+app.use(bodyParser.json())
 
 // database 
 
@@ -33,6 +36,7 @@ connectDB()
 
 app.use('/api/auth', authRoutes)
 app.use('/api/amadeus', amadeusRoutes)
+app.use('/api/flight', flightRoutes)
 
 // backend app listening 
 

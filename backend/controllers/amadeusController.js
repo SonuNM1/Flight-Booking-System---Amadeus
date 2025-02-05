@@ -64,4 +64,7 @@ const fetchAccessToken = async (req, res) => {
 }
 
 
-module.exports = {fetchAccessToken}
+module.exports = {
+    fetchAccessToken,
+    getAccessToken
+}
